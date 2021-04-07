@@ -9,7 +9,7 @@ if __name__ == '__main__':
     session = requests.session()
     # GET request on the main app URL
     response = session.get(url)
-    # parse the response to fetch the SSO URL redirected to found in form tag
+    # parse the response to fetch the SSO URL found in form tag
     soup = BeautifulSoup(response.content, 'lxml')
     sso_url = soup.find('form').get('action')
     # and parse the SAML response found in hidden input tags
@@ -24,4 +24,4 @@ if __name__ == '__main__':
     login_payload.update(creds)
     # POST request to log in
     response = session.post(sso_url, data=login_payload)
-    # the login should be successfull at this point and you can query any other URLs
+    # the login should be successfull at this point and you can query any other URL
