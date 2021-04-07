@@ -2,6 +2,10 @@ provider "aws" {
     region = var.aws_region
 }
 
+data "external" "zip_package" {
+    program = [ "${path.root}/zip_package.sh" ]
+}
+
 data "aws_iam_policy_document" "policy" {
     statement {
       sid     = ""
