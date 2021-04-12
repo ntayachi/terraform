@@ -12,7 +12,7 @@ if __name__ == '__main__':
     # parse the response to fetch the SSO URL found in form tag
     soup = BeautifulSoup(response.content, 'lxml')
     sso_url = soup.find('form').get('action')
-    # and parse the SAML response found in hidden input tags
+    # and parse the SAMLRequest and RelayState found in hidden input tags
     login_payload = {}
     for i in soup.find_all('input', type='hidden'):
         login_payload[i['name']] = i['value']
