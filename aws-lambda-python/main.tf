@@ -33,3 +33,12 @@ resource "aws_lambda_function" "lambda_probe" {
   runtime          = "python3.8"
   timeout          = 20
 }
+
+resource "aws_iam_role_policy_attachment" "logs_policy" {
+  role       = aws_iam_role.probe_iam.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_cloudwatch_log_group" "probe_log_group" {
+  name = "/aws/lambda/${var.lambda_name}"
+}
