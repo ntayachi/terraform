@@ -3,7 +3,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-if __name__ == '__main__':
+def lambda_handler(event, context):
     url = 'YOUR_APP_URL'
     # initiate session
     session = requests.session()
