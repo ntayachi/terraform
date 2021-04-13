@@ -13,7 +13,7 @@ data "aws_iam_policy_document" "policy" {
     actions = [ "sts:AssumeRole" ]
       
     principals {
-      identifiers = [ "lambda.amzonaws.com" ]
+      identifiers = [ "lambda.amazonaws.com" ]
       type        = "Service"
     }
   }
