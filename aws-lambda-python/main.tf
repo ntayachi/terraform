@@ -42,3 +42,21 @@ resource "aws_iam_role_policy_attachment" "logs_policy" {
 resource "aws_cloudwatch_log_group" "probe_log_group" {
   name = "/aws/lambda/${var.lambda_name}"
 }
+
+resource "aws_cloudwatch_event_rule" "crontab_every_5min" {
+  name                = "probe_crontab"
+  schedule_expression = "cron(0/5 * * * ? *)"
+}
+
+resource "aws_cloudwatch_event_target" "run_lambda_every_5min" {
+  rule = aws_cloudwatch_event_rule.crontab_every_5min.name
+  arn  = aws_lambda_function.lambda_probe.arn
+}
+
+resource "aws_lambda_permission" "allow_cloudwatch" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda_probe.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.crontab_every_5min.arn
+}
