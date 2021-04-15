@@ -11,7 +11,6 @@ data "aws_iam_policy_document" "policy" {
     sid     = ""
     effect  = "Allow"
     actions = [ "sts:AssumeRole" ]
-      
     principals {
       identifiers = [ "lambda.amazonaws.com" ]
       type        = "Service"
@@ -59,4 +58,52 @@ resource "aws_lambda_permission" "allow_cloudwatch" {
   function_name = aws_lambda_function.lambda_probe.function_name
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.crontab_every_5min.arn
+}
+
+resource "aws_sns_topic" "probe_logs" {
+  name         = "probe_logs"
+  display_name = "Lambda probe logs"
+}
+
+resource "aws_sns_topic_subscription" "probe_logs_email_sub" {
+  topic_arn = aws_sns_topic.probe_logs.arn
+  protocol  = "email"
+  endpoint  = "tayachi.nafaa@gmail.com"
+}
+
+resource "aws_iam_policy" "sns_topic_policy" {
+  name        = "sns_topic_policy"
+  description = "SNS publish policy"
+  policy      = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "SnsPolicy",
+      "Effect": "Allow",
+      "Action": [ 
+        "sns:Publish"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "sns_policy_attachment" {
+  role       = aws_iam_role.probe_iam.name
+  policy_arn = aws_iam_policy.sns_topic_policy.arn
+}
+
+resource "aws_lambda_function_event_invoke_config" "sns_destination" {
+  function_name = aws_lambda_function.lambda_probe.function_name
+  destination_config {
+    on_failure {
+      destination = aws_sns_topic.probe_logs.arn
+    }
+    on_success {
+      destination = aws_sns_topic.probe_logs.arn
+    }
+  }
 }
