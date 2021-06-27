@@ -29,6 +29,10 @@ resource "aws_instance" "web_server" {
   instance_type = "t3.micro"
 }
 
+resource "aws_eip" "web_eip" {
+  instance = aws_instance.web_server.id
+}
+
 resource "aws_ebs_volume" "ebs_volumes" {
   for_each = local.volumes
   
@@ -50,8 +54,8 @@ data "aws_route53_zone" "dev_zone" {
 
 resource "aws_route53_record" "dev_record" {
   zone_id = data.aws_route53_zone.dev_zone.zone_id
-  name = "www.web-server.${data.aws_route53_zone.dev_zone.name}"
-  type = "A"
-  ttl = "300"
-  records = [ "123.4.5.67" ]
+  name    = "www.web-server.${data.aws_route53_zone.dev_zone.name}"
+  type    = "A"
+  ttl     = "300"
+  records = [ aws_eip.web_eip.public_ip ]
 }
