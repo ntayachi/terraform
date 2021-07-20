@@ -4,7 +4,7 @@ variable "aws_region" {
   description = "Region where to provision resources"
 }
 
-variable "ebs_volume_az" {
+variable "aws_az" {
   type        = string
   default     = "us-east-1a"
   description = "Availability Zone for the EBS volumes"

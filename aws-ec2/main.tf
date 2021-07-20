@@ -25,8 +25,9 @@ data "aws_ami" "amazon_linux" {
 }
 
 resource "aws_instance" "web_server" {
-  ami           = data.aws_ami.amazon_linux.id
-  instance_type = "t3.micro"
+  ami               = data.aws_ami.amazon_linux.id
+  availability_zone = var.aws_az
+  instance_type     = "m3.medium"
 }
 
 resource "aws_eip" "web_eip" {
@@ -36,7 +37,7 @@ resource "aws_eip" "web_eip" {
 resource "aws_ebs_volume" "ebs_volumes" {
   for_each = local.volumes
   
-  availability_zone = var.ebs_volume_az
+  availability_zone = var.aws_az
   size              = 20
 }
 
@@ -54,7 +55,7 @@ data "aws_route53_zone" "dev_zone" {
 
 resource "aws_route53_record" "dev_record" {
   zone_id = data.aws_route53_zone.dev_zone.zone_id
-  name    = "www.web-server.${data.aws_route53_zone.dev_zone.name}"
+  name    = "web-server.${data.aws_route53_zone.dev_zone.name}"
   type    = "A"
   ttl     = "300"
   records = [ aws_eip.web_eip.public_ip ]
