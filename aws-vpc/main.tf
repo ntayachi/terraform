@@ -66,6 +66,14 @@ resource "aws_network_interface" "myPublicNetworkInterface" {
   }
 }
 
+resource "aws_network_interface" "myPrivateNetwokInterface" {
+  subnet_id = aws_subnet.myPrivateSubnet.id
+
+  tags = {
+    "Name" = "myPrivateNetwokInterface"
+  }
+}
+
 data "aws_ami" "amazon_linux" {
   most_recent = true
   owners      = ["self"]
@@ -87,5 +95,19 @@ resource "aws_instance" "myPublicInstance" {
 
   tags = {
     "Name" = "myPublicInstance"
+  }
+}
+
+resource "aws_instance" "myPrivateInstance" {
+  ami           = data.aws_ami.amazon_linux.id
+  instance_type = "t3.micro"
+
+  network_interface {
+    network_interface_id = aws_network_interface.myPrivateNetwokInterface.id
+    device_index         = 0
+  }
+
+  tags = {
+    "Name" = "myPrivateInstance"
   }
 }
