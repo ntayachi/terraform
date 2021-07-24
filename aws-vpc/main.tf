@@ -57,3 +57,35 @@ resource "aws_route_table_association" "publicSubnetAssociation" {
   subnet_id      = aws_subnet.myPublicSubnet.id
   route_table_id = aws_route_table.myPublicRouteTable.id
 }
+
+resource "aws_network_interface" "myPublicNetworkInterface" {
+  subnet_id = aws_subnet.myPublicSubnet.id
+
+  tags = {
+    "Name" = "myPublicNetworkInterface"
+  }
+}
+
+data "aws_ami" "amazon_linux" {
+  most_recent = true
+  owners      = ["self"]
+
+  filter {
+    name   = "name"
+    values = ["Amazon Linux*"]
+  }
+}
+
+resource "aws_instance" "myPublicInstance" {
+  ami           = data.aws_ami.amazon_linux.id
+  instance_type = "t3.micro"
+
+  network_interface {
+    network_interface_id = aws_network_interface.myPublicNetworkInterface.id
+    device_index         = 0
+  }
+
+  tags = {
+    "Name" = "myPublicInstance"
+  }
+}
