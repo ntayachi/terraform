@@ -83,7 +83,8 @@ resource "aws_security_group_rule" "httpInboundRule" {
 }
 
 resource "aws_network_interface" "myPublicNetworkInterface" {
-  subnet_id = aws_subnet.myPublicSubnet.id
+  subnet_id       = aws_subnet.myPublicSubnet.id
+  security_groups = [aws_security_group.mySecurityGroup.id]
 
   tags = {
     "Name" = "myPublicNetworkInterface"
@@ -91,8 +92,7 @@ resource "aws_network_interface" "myPublicNetworkInterface" {
 }
 
 resource "aws_network_interface" "myPrivateNetwokInterface" {
-  subnet_id       = aws_subnet.myPrivateSubnet.id
-  security_groups = [aws_security_group.mySecurityGroup.id]
+  subnet_id = aws_subnet.myPrivateSubnet.id
 
   tags = {
     "Name" = "myPrivateNetwokInterface"
