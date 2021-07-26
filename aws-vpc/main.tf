@@ -58,6 +58,30 @@ resource "aws_route_table_association" "publicSubnetAssociation" {
   route_table_id = aws_route_table.myPublicRouteTable.id
 }
 
+resource "aws_security_group" "mySecurityGroup" {
+  name        = "mySecurityGroup"
+  description = "Allow SSH and HTTP inbound traffic"
+  vpc_id      = aws_vpc.myVPC.id
+}
+
+resource "aws_security_group_rule" "sshInboundRule" {
+  type              = "ingress"
+  from_port         = 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.mySecurityGroup.id
+}
+
+resource "aws_security_group_rule" "httpInboundRule" {
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.mySecurityGroup.id
+}
+
 resource "aws_network_interface" "myPublicNetworkInterface" {
   subnet_id = aws_subnet.myPublicSubnet.id
 
@@ -67,7 +91,8 @@ resource "aws_network_interface" "myPublicNetworkInterface" {
 }
 
 resource "aws_network_interface" "myPrivateNetwokInterface" {
-  subnet_id = aws_subnet.myPrivateSubnet.id
+  subnet_id       = aws_subnet.myPrivateSubnet.id
+  security_groups = [aws_security_group.mySecurityGroup.id]
 
   tags = {
     "Name" = "myPrivateNetwokInterface"
@@ -92,6 +117,7 @@ resource "aws_instance" "myPublicInstance" {
     network_interface_id = aws_network_interface.myPublicNetworkInterface.id
     device_index         = 0
   }
+
 
   tags = {
     "Name" = "myPublicInstance"
